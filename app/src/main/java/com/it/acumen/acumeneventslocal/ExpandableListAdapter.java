@@ -43,6 +43,10 @@ import android.widget.ExpandableListView.OnGroupExpandListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import static android.content.ContentValues.TAG;
 
 
@@ -56,7 +60,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
     private final int minDelta = 300;           // threshold in ms
     private long focusTime = 0;                 // time of last touch
     private View focusTarget = null;
-    SendPostRequest asyncTask =new SendPostRequest((Activity)_context);
+    SendPostRequest asyncTask;
 
     public ExpandableListAdapter(Context context, List<String> listDataHeader,
                                  HashMap<String,Game> listChildData) {
@@ -64,7 +68,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         this._listDataHeader = listDataHeader;
         this._listDataChild = listChildData;
         this.result = null;
-        asyncTask.delegate = this;
+
+
     }
 
 
@@ -114,6 +119,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         Button addPlayer = (Button) convertView.findViewById(R.id.AddPlayer);
         if(((Game)getChild(groupPosition,0)).getPlayerList().size()==1)
         {
+
             final LinearLayout mainLL2 = (LinearLayout) csView.findViewById(R.id.mainlinear);
             ((ViewGroup) mainLL2).removeAllViews();
         }
@@ -134,6 +140,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 TextView newPlayer = new TextView(_context);
                 newPlayer.setText(((Game)getChild(groupPosition,0)).getPlayerList().get(k).getPlayerName());
                 but.weight = 1.0f;
+                but.setMargins(40,10,0,0);
                 newPlayer.setLayoutParams(but);
                 ll.addView(newPlayer);
                 ll.addView(remove);
@@ -159,6 +166,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                  i.putExtra("requestCode",1);
                  i.putExtra("groupPosition",groupPosition);
                  i.putExtra("childPosition",childPosition);
+                 i.putExtra("gameId",childItem.getGameId());
                  origin.startActivityForResult(i, 1);
 
 
@@ -322,6 +330,21 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                                 //_listDataHeader.set(gPosition,"Submitted");
                                 childItem.setStatus(1);
                                 Toast.makeText(_context, "Submitted!!", Toast.LENGTH_SHORT).show();
+                                JSONObject url = new JSONObject();
+                                JSONObject values = new JSONObject();
+
+                                try {
+                                    url.put("url","http://www.acumenit.in/andy/events/endgame");
+                                    values.put("gId", childItem.getGameId());
+                                    values.put("Total",childItem.getRound1Score()+childItem.getRound2Score()+childItem.getRound3Score());
+
+                                }catch (JSONException e)
+                                {
+
+                                }
+                                asyncTask =new SendPostRequest((Activity)_context);
+                                asyncTask.delegate = ExpandableListAdapter.this;
+                                asyncTask.execute(url,values);
                                 notifyDataSetChanged();
                             }
                         });
@@ -333,9 +356,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
-
-
-
             }
         });
 
@@ -451,12 +471,22 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             if(resultCode == Activity.RESULT_OK){
                 result=data.getStringExtra("Result");
 
+                String playerName = null;
+                String playerId = null;
+
+                try{
+                    JSONArray arr = new JSONArray(result);
+                    playerId = arr.getJSONObject(0).getJSONObject("fields").getString("QId");
+                    playerName = arr.getJSONObject(0).getJSONObject("fields").getString("name");
+                }catch (JSONException e){
+
+                }
                 Log.e(TAG,"result : "+result);
                 Toast.makeText(_context,result,Toast.LENGTH_SHORT).show();
                 int gp = data.getIntExtra("groupPosition",0);
                 String groupName = (String) getGroup(gp);
                 List<PlayerDetails> playerList=((Game)getChild(gp,0)).getPlayerList();
-                playerList.add(new PlayerDetails("98999898",result));
+                playerList.add(new PlayerDetails(playerId,playerName));
                 //_listDataChild.get(groupName).getPlayerList().add(new PlayerDetails("6784848",result));
                 _listDataChild.get(groupName).setPlayerList(playerList);
                 notifyDataSetChanged();

@@ -25,6 +25,10 @@ import android.widget.ExpandableListView.OnGroupExpandListener;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class MainActivity extends Activity {
 
     ExpandableListAdapter listAdapter;
@@ -68,23 +72,23 @@ public class MainActivity extends Activity {
     private void prepareListData() {
 
 
-        // Adding child data
-        listDataHeader.add("737-101 \t Sravya");
-        listDataHeader.add("737-073 \t Krushi");
-        listDataHeader.add("737-314 \t Bhavani");
-
-
-        List<PlayerDetails> playerDetails = new ArrayList<>();
-        playerDetails.add(new PlayerDetails("player1","Abhijith"));
-        listDataChild.put(listDataHeader.get(0),new Game("12345",playerDetails));
-
-        playerDetails = new ArrayList<>();
-        playerDetails.add(new PlayerDetails("player2","Abhijith2"));
-        listDataChild.put(listDataHeader.get(1),new Game("13454",playerDetails));
-
-        playerDetails = new ArrayList<>();
-        playerDetails.add(new PlayerDetails("player3","Abhijith3"));
-        listDataChild.put(listDataHeader.get(2),new Game("0876666",playerDetails));
+//        // Adding child data
+//        listDataHeader.add("737-101 \t dfgdshfgmfdghgj,hhgdsfgh,jhgfghhggghmggghh,hgfdggfghmfvbnv n");
+//        listDataHeader.add("737-073 \t Krushi");
+//        listDataHeader.add("737-314 \t Bhavani");
+//
+//
+//        List<PlayerDetails> playerDetails = new ArrayList<>();
+//        playerDetails.add(new PlayerDetails("player1","Abhijith"));
+//        listDataChild.put(listDataHeader.get(0),new Game("12345",playerDetails));
+//
+//        playerDetails = new ArrayList<>();
+//        playerDetails.add(new PlayerDetails("player2","Abhijith2"));
+//        listDataChild.put(listDataHeader.get(1),new Game("13454",playerDetails));
+//
+//        playerDetails = new ArrayList<>();
+//        playerDetails.add(new PlayerDetails("player3","Abhijith3"));
+//        listDataChild.put(listDataHeader.get(2),new Game("0876666",playerDetails));
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -96,10 +100,32 @@ public class MainActivity extends Activity {
                 String result=data.getStringExtra("Result");
 //                Toast.makeText(this,"Result :"+result,Toast.LENGTH_LONG).show();
 
-                listDataHeader.add(result);
+                String gameId=null;
+                String playerName=null;
+                String playerId=null;
+                try{
+                    JSONArray arr = new JSONArray(result);
+                    gameId = arr.getJSONObject(0).getJSONObject("fields").getString("gId");
+                    Log.e("gId", gameId);
+                    //JSONObject obj2 = arr.getJSONObject(1);
+                    playerName = arr.getJSONObject(1).getJSONObject("fields").getString("name");
+                    Log.e("playerName", playerName);
+                    playerId = arr.getJSONObject(2).getJSONObject("fields").getString("QId");
+
+//                    listDataHeader.add(header);
+                }catch (JSONException e)
+                {
+
+                }
+
+
+//                listDataHeader.add(gameId+"\n"+playerName);
                 List<PlayerDetails> playerDetails = new ArrayList<>();
-                playerDetails.add(new PlayerDetails("player4","Abhijith4"));
-                listDataChild.put(result,new Game("12345",playerDetails));
+                String header = gameId+"      "+playerName;
+                listDataHeader.add(header);
+                playerDetails.add(new PlayerDetails(playerId,playerName));
+                listDataChild.put(header,new Game(gameId,playerDetails));
+
                 listAdapter.notifyDataSetChanged();
             }
             if (resultCode == Activity.RESULT_CANCELED) {

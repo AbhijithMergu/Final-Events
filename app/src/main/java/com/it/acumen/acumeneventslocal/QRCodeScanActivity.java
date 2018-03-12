@@ -149,10 +149,11 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
         if(a==1){
             JSONObject url = new JSONObject();
             JSONObject values = new JSONObject();
-
+            String gameId = getIntent().getStringExtra("gameId");
             try {
                 url.put("url","http://www.acumenit.in/andy/events/addplayer");
                 values.put("qId", result);
+                values.put("gId",gameId);
 
             }catch (JSONException e)
             {
@@ -167,7 +168,7 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             try {
                 url.put("url","http://www.acumenit.in/andy/events/newgame");
                 values.put("qId", result);
-                values.put("eId","TTX");
+                values.put("eId","ALP");
             }catch (JSONException e)
             {
 
@@ -192,9 +193,11 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
           //  returnIntent.putExtra("result",result);
             returnIntent.putExtra("groupPosition",groupPosition);
             returnIntent.putExtra("childPosition",childPosition);
+            returnIntent.putExtra("requestCode",1);
             returnIntent.putExtra("Result",result);
             setResult(Activity.RESULT_OK,returnIntent);
             finish();
+
         }
         else if(a==2)
         {

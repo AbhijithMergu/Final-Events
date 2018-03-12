@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/Nemuca-4db27ebf4073ff735c44b9c6a7664e10d24df038.iml" filepath="$PROJECT_DIR$/Nemuca-4db27ebf4073ff735c44b9c6a7664e10d24df038.iml" />
+      <module fileurl="file://C:\Users\pavan\Desktop\Nemuca-master\Nemuca-Events-master.iml" filepath="C:\Users\pavan\Desktop\Nemuca-master\Nemuca-Events-master.iml" />
+      <module fileurl="file://C:\Users\pavan\AndroidStudioProjects\Nemuca-4db27ebf4073ff735c44b9c6a7664e10d24df038\Nemuca-master.iml" filepath="C:\Users\pavan\AndroidStudioProjects\Nemuca-4db27ebf4073ff735c44b9c6a7664e10d24df038\Nemuca-master.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+    </modules>
+  </component>
+</project>

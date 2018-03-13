@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -68,8 +69,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
         this._listDataHeader = listDataHeader;
         this._listDataChild = listChildData;
         this.result = null;
-
-
     }
 
 
@@ -98,7 +97,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
 
         final View csView = convertView;
 
-        Toast.makeText(_context,"Group Position: "+groupPosition+"Number : "+childItem.getPlayerList().size(),Toast.LENGTH_SHORT).show();
+      //  Toast.makeText(_context,"Group Position: "+groupPosition+"Number : "+childItem.getPlayerList().size(),Toast.LENGTH_SHORT).show();
 
         final TextView txtListChild = (TextView) convertView
                 .findViewById(R.id.lblListItem);
@@ -133,24 +132,18 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 ll.setOrientation(LinearLayout.HORIZONTAL);
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 LinearLayout.LayoutParams but = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT);
-                Button remove = new Button(_context);
-                remove.setText("x");
-                remove.setLayoutParams(params);
 
                 TextView newPlayer = new TextView(_context);
-                newPlayer.setText(((Game)getChild(groupPosition,0)).getPlayerList().get(k).getPlayerName());
+                newPlayer.setText(((Game)getChild(groupPosition,0)).getPlayerList().get(k).getPlayerName().toUpperCase());
+                float pixels = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, _context.getResources().getDisplayMetrics());
+                newPlayer.setTextSize(pixels);
+                newPlayer.setTextColor(Color.BLACK);
                 but.weight = 1.0f;
                 but.setMargins(40,10,0,0);
                 newPlayer.setLayoutParams(but);
                 ll.addView(newPlayer);
-                ll.addView(remove);
                 mainLL.addView(ll);
-                remove.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mainLL.removeView(ll);
-                    }
-                });
+
             }
         }
         addPlayer.setOnClickListener(new View.OnClickListener() {
@@ -167,6 +160,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                  i.putExtra("groupPosition",groupPosition);
                  i.putExtra("childPosition",childPosition);
                  i.putExtra("gameId",childItem.getGameId());
+                 String [] playerIds  = new String[childItem.getPlayerList().size()];
+                 int count = 0;
+                 for(PlayerDetails x : childItem.getPlayerList())
+                 {
+                     playerIds[count++]= x.getPlayerId();
+                 }
+                 i.putExtra("playerIds",playerIds);
+
                  origin.startActivityForResult(i, 1);
 
 
@@ -329,7 +330,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                                // String name = _listDataHeader.get(gPosition);
                                 //_listDataHeader.set(gPosition,"Submitted");
                                 childItem.setStatus(1);
-                                Toast.makeText(_context, "Submitted!!", Toast.LENGTH_SHORT).show();
+                          //      Toast.makeText(_context, "Submitted!!", Toast.LENGTH_SHORT).show();
                                 JSONObject url = new JSONObject();
                                 JSONObject values = new JSONObject();
 
@@ -356,6 +357,27 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                         });
                 AlertDialog alertDialog = builder.create();
                 alertDialog.show();
+            }
+        });
+
+        final Button reset = (Button) convertView.findViewById(R.id.reset);
+        if(childItem.getStatus() == 1)
+            reset.setEnabled(false);
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(childItem.getStatus() != 1) {
+                    childItem.setRound1Score(0);
+                    childItem.setRound2Score(0);
+                    childItem.setRound3Score(0);
+                    R1.setText("" + 0);
+                    R2.setText("" + 0);
+                    R3.setText("" + 0);
+                    R1.setEnabled(true);
+                    R2.setEnabled(true);
+                    R3.setEnabled(true);
+                }
+
             }
         });
 
@@ -434,7 +456,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
             }
 
             else
-                grouplinearlayout.setBackgroundColor(Color.parseColor("#4ba3c7"));
+                grouplinearlayout.setBackgroundColor(Color.parseColor("#000000"));
             String headerTitle = _listDataHeader.get(groupPosition);//0+childItem.getGameId() + "\t" + childItem.getPlayerList().get(0).getPlayerName();
             TextView lblListHeader = (TextView) convertView
                     .findViewById(R.id.lblListHeader);
@@ -477,19 +499,34 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter implements 
                 try{
                     JSONArray arr = new JSONArray(result);
                     playerId = arr.getJSONObject(0).getJSONObject("fields").getString("QId");
-                    playerName = arr.getJSONObject(0).getJSONObject("fields").getString("name");
-                }catch (JSONException e){
 
+                    playerName = arr.getJSONObject(0).getJSONObject("fields").getString("name");
+                    Log.e(TAG,"result : "+result);
+                    //     Toast.makeText(_context,result,Toast.LENGTH_SHORT).show();
+                    int gp = data.getIntExtra("groupPosition",0);
+                    String groupName = (String) getGroup(gp);
+                    List<PlayerDetails> playerList=((Game)getChild(gp,0)).getPlayerList();
+                    playerList.add(new PlayerDetails(playerId,playerName));
+                    //_listDataChild.get(groupName).getPlayerList().add(new PlayerDetails("6784848",result));
+                    _listDataChild.get(groupName).setPlayerList(playerList);
+                    notifyDataSetChanged();
+
+                }catch (JSONException e){
+                    AlertDialog.Builder builder = new AlertDialog.Builder(_context);
+                    builder.setTitle("Error!");
+                    builder.setMessage(result);
+                    builder.setCancelable(false);
+
+                    builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
                 }
-                Log.e(TAG,"result : "+result);
-                Toast.makeText(_context,result,Toast.LENGTH_SHORT).show();
-                int gp = data.getIntExtra("groupPosition",0);
-                String groupName = (String) getGroup(gp);
-                List<PlayerDetails> playerList=((Game)getChild(gp,0)).getPlayerList();
-                playerList.add(new PlayerDetails(playerId,playerName));
-                //_listDataChild.get(groupName).getPlayerList().add(new PlayerDetails("6784848",result));
-                _listDataChild.get(groupName).setPlayerList(playerList);
-                notifyDataSetChanged();
+
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result

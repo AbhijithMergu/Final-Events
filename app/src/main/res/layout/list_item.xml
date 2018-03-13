@@ -15,11 +15,14 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:textSize="16sp"
+            android:textSize="17dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:text="Name"
-            android:textColor="#F2A307"
+            android:textColor="#000"
+            android:textAllCaps="true"
+            android:layout_marginLeft="4dp"
+            android:textColorHighlight="#000"
             android:paddingLeft="8dp" />
 
         <Button
@@ -42,20 +45,21 @@
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="50dp">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="60dp"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="R1"/>
+                android:text="  R1"/>
 
             <EditText
                 android:layout_width="wrap_content"
@@ -72,14 +76,14 @@
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="R2"/>
+                android:text="  R2"/>
 
             <EditText
                 android:layout_width="wrap_content"
@@ -97,14 +101,14 @@
 
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
             android:orientation="vertical">
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="R3"
+                android:text="  R3"
                 />
 
             <EditText
@@ -127,22 +131,30 @@
 
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp">
+        >
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="UPDATE"
             android:id="@+id/update"/>
 
         <Button
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:text="Submit"
             android:id="@+id/submit"/>
+        <Button
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:id="@+id/reset"
+            android:text="RESET"/>
 
 
     </LinearLayout>

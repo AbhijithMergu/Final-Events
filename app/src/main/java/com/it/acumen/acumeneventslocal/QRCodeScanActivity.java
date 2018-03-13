@@ -41,7 +41,7 @@ import static android.Manifest.permission.CAMERA;
 public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScannerView.ResultHandler,AsyncResponse {
     private ZXingScannerView mScannerView;
     private static final int REQUEST_CAMERA = 1;
-    SendPostRequest asyncTask =new SendPostRequest(QRCodeScanActivity.this);
+    SendPostRequest asyncTask;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +61,7 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
                 requestPermission();
             }
         }
-        asyncTask.delegate = this;
+
     }
 
     private boolean checkPermission() {
@@ -150,6 +150,17 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             JSONObject url = new JSONObject();
             JSONObject values = new JSONObject();
             String gameId = getIntent().getStringExtra("gameId");
+            String [] playerIds = getIntent().getStringArrayExtra("playerIds");
+            for(int i=0;i<playerIds.length;i++)
+                if(result.equals(playerIds[i]))
+                {
+                    Intent returnIntent = new Intent();
+                    //  returnIntent.putExtra("result",result);
+                    returnIntent.putExtra("Result","User has already been added!");
+                    setResult(Activity.RESULT_OK,returnIntent);
+                    finish();
+                    return;
+                }
             try {
                 url.put("url","http://www.acumenit.in/andy/events/addplayer");
                 values.put("qId", result);
@@ -159,6 +170,8 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             {
 
             }
+            asyncTask =new SendPostRequest(QRCodeScanActivity.this);
+            asyncTask.delegate = this;
             asyncTask.execute(url,values);
         }
         if(a==2){
@@ -168,17 +181,15 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             try {
                 url.put("url","http://www.acumenit.in/andy/events/newgame");
                 values.put("qId", result);
-                values.put("eId","ALP");
+                values.put("eId","TTX");
             }catch (JSONException e)
             {
 
             }
+            asyncTask =new SendPostRequest(QRCodeScanActivity.this);
+            asyncTask.delegate = this;
             asyncTask.execute(url,values);
         }
-
-
-
-
 
     }
     @Override
@@ -197,7 +208,6 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             returnIntent.putExtra("Result",result);
             setResult(Activity.RESULT_OK,returnIntent);
             finish();
-
         }
         else if(a==2)
         {

@@ -1,5 +1,7 @@
 package com.it.acumen.acumeneventslocal;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -22,6 +24,7 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ExpandableListView.OnGroupCollapseListener;
 import android.widget.ExpandableListView.OnGroupExpandListener;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +50,6 @@ public class MainActivity extends Activity {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, Game>();
 
-        prepareListData();
 
         listAdapter = new ExpandableListAdapter(this, listDataHeader, listDataChild);
 
@@ -64,32 +66,10 @@ public class MainActivity extends Activity {
                 startActivityForResult(i,2);
             }
         });
+        sendNotification();
     }
 
-    /*
-     * Preparing the list data
-     */
-    private void prepareListData() {
 
-
-//        // Adding child data
-//        listDataHeader.add("737-101 \t dfgdshfgmfdghgj,hhgdsfgh,jhgfghhggghmggghh,hgfdggfghmfvbnv n");
-//        listDataHeader.add("737-073 \t Krushi");
-//        listDataHeader.add("737-314 \t Bhavani");
-//
-//
-//        List<PlayerDetails> playerDetails = new ArrayList<>();
-//        playerDetails.add(new PlayerDetails("player1","Abhijith"));
-//        listDataChild.put(listDataHeader.get(0),new Game("12345",playerDetails));
-//
-//        playerDetails = new ArrayList<>();
-//        playerDetails.add(new PlayerDetails("player2","Abhijith2"));
-//        listDataChild.put(listDataHeader.get(1),new Game("13454",playerDetails));
-//
-//        playerDetails = new ArrayList<>();
-//        playerDetails.add(new PlayerDetails("player3","Abhijith3"));
-//        listDataChild.put(listDataHeader.get(2),new Game("0876666",playerDetails));
-    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1)
@@ -110,23 +90,36 @@ public class MainActivity extends Activity {
                     //JSONObject obj2 = arr.getJSONObject(1);
                     playerName = arr.getJSONObject(1).getJSONObject("fields").getString("name");
                     Log.e("playerName", playerName);
-                    playerId = arr.getJSONObject(2).getJSONObject("fields").getString("QId");
+                    playerId = arr.getJSONObject(1).getJSONObject("fields").getString("QId");
 
 //                    listDataHeader.add(header);
+                    List<PlayerDetails> playerDetails = new ArrayList<>();
+                    String header = gameId+"      "+playerName;
+                    listDataHeader.add(header);
+                    playerDetails.add(new PlayerDetails(playerId,playerName));
+                    listDataChild.put(header,new Game(gameId,playerDetails));
+
+                    listAdapter.notifyDataSetChanged();
                 }catch (JSONException e)
                 {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Error!");
+                    builder.setMessage(result);
+                    builder.setCancelable(false);
 
+                    builder.setNeutralButton("Ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    });
+                    AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
                 }
 
 
 //                listDataHeader.add(gameId+"\n"+playerName);
-                List<PlayerDetails> playerDetails = new ArrayList<>();
-                String header = gameId+"      "+playerName;
-                listDataHeader.add(header);
-                playerDetails.add(new PlayerDetails(playerId,playerName));
-                listDataChild.put(header,new Game(gameId,playerDetails));
 
-                listAdapter.notifyDataSetChanged();
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
@@ -154,8 +147,33 @@ public class MainActivity extends Activity {
                         dialog.cancel();
                     }
                 });
+
+//        final EditText input = new EditText(MainActivity.this);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        input.setLayoutParams(lp);
+//        builder.setView(input);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
+
        // super.onBackPressed();
+    }
+    public void sendNotification() {
+
+        //Get an instance of NotificationManager//
+
+        Notification n  = new Notification.Builder(this)
+                .setContentTitle("Event Registration")
+                .setContentText("Your event is running!")
+                .setOngoing(true)
+                .setSmallIcon(R.drawable.acumen_logo).build();
+
+        NotificationManager notificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+
+
+        notificationManager.notify(0, n);
     }
 }

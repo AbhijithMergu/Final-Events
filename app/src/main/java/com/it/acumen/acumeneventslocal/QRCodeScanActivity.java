@@ -17,6 +17,9 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -33,6 +36,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
@@ -62,6 +66,87 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             }
         }
 
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id==R.id.add_qrcode)
+        {
+            AlertDialog.Builder alertDialog = new AlertDialog.Builder(QRCodeScanActivity.this);
+            alertDialog.setTitle("QR Manual Entry");
+            alertDialog.setMessage("\nEnter QRCode");
+
+            final EditText input = new EditText(QRCodeScanActivity.this);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
+            input.setLayoutParams(lp);
+            alertDialog.setView(input);
+
+            alertDialog.setNeutralButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            String result = input.getText().toString();
+                            int a = getIntent().getIntExtra("requestCode",0);
+                            if(a==1){
+                                JSONObject url = new JSONObject();
+                                JSONObject values = new JSONObject();
+                                String gameId = getIntent().getStringExtra("gameId");
+                                String [] playerIds = getIntent().getStringArrayExtra("playerIds");
+                                for(int i=0;i<playerIds.length;i++)
+                                    if(result.equals(playerIds[i]))
+                                    {
+                                        Intent returnIntent = new Intent();
+                                        //  returnIntent.putExtra("result",result);
+                                        returnIntent.putExtra("Result","User has already been added!");
+                                        setResult(Activity.RESULT_OK,returnIntent);
+                                        finish();
+                                        return;
+                                    }
+                                try {
+                                    url.put("url","http://www.acumenit.in/andy/events/addplayer");
+                                    values.put("qId", result);
+                                    values.put("gId",gameId);
+
+                                }catch (JSONException e)
+                                {
+
+                                }
+                                asyncTask =new SendPostRequest(QRCodeScanActivity.this);
+                                asyncTask.delegate = QRCodeScanActivity.this;
+                                asyncTask.execute(url,values);
+                            }
+                            if(a==2){
+                                JSONObject url = new JSONObject();
+                                JSONObject values = new JSONObject();
+
+                                try {
+                                    url.put("url","http://www.acumenit.in/andy/events/newgame");
+                                    values.put("qId", result);
+                                    values.put("eId","TTX");
+                                }catch (JSONException e)
+                                {
+
+                                }
+                                asyncTask =new SendPostRequest(QRCodeScanActivity.this);
+                                asyncTask.delegate = QRCodeScanActivity.this;
+                                asyncTask.execute(url,values);
+                            }
+
+                        }
+                    });
+
+
+            alertDialog.show();
+        }
+        return true;
     }
 
     private boolean checkPermission() {
@@ -144,7 +229,6 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
         Log.d("QRCodeScanner", rawResult.getText());
         Log.d("QRCodeScanner", rawResult.getBarcodeFormat().toString());
 
-
         int a = getIntent().getIntExtra("requestCode",0);
         if(a==1){
             JSONObject url = new JSONObject();
@@ -201,7 +285,7 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             int groupPosition = getIntent().getIntExtra("groupPosition",0);
             int childPosition = getIntent().getIntExtra("childPosition",0);
             Intent returnIntent = new Intent();
-          //  returnIntent.putExtra("result",result);
+//            returnIntent.putExtra("result",result);
             returnIntent.putExtra("groupPosition",groupPosition);
             returnIntent.putExtra("childPosition",childPosition);
             returnIntent.putExtra("requestCode",1);
@@ -217,6 +301,5 @@ public class QRCodeScanActivity extends AppCompatActivity  implements ZXingScann
             setResult(Activity.RESULT_OK,returnIntent);
             finish();
         }
-
     }
 }

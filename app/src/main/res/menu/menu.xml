@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app = "http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".QRCodeScanActivity">
     <item
-        android:id="@+id/menu_cart_button"
-        android:title = "CART"
-
+        android:id="@+id/add_qrcode"
+        android:title = "ADD QRCode"
+        android:icon="@drawable/ic_add_white_24dp"
         android:orderInCategory="100"
         app:showAsAction="ifRoom"/>
 
